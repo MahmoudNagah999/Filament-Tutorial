@@ -7,6 +7,9 @@ use App\Filament\Resources\CountryResource\RelationManagers;
 use App\Models\Country;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -47,7 +50,13 @@ class CountryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('code')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('phonecode')
+                    ->numeric(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -71,6 +80,19 @@ class CountryResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Country Information')
+                ->schema([
+                    TextEntry::make('name')->label('Name'),
+                    TextEntry::make('code')->label('Country Code'),
+                    TextEntry::make('phonecode')->label('Phone Code'),
+                ])->columns(3),
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -83,7 +105,7 @@ class CountryResource extends Resource
         return [
             'index' => Pages\ListCountries::route('/'),
             'create' => Pages\CreateCountry::route('/create'),
-            'view' => Pages\ViewCountry::route('/{record}'),
+            // 'view' => Pages\ViewCountry::route('/{record}'),
             'edit' => Pages\EditCountry::route('/{record}/edit'),
         ];
     }

@@ -7,11 +7,14 @@ use App\Filament\Resources\StateResource\RelationManagers;
 use App\Models\State;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Infolists\Infolist;
 
 class StateResource extends Resource
 {
@@ -44,10 +47,12 @@ class StateResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('country_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('country.name')
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('name')
+                    ->label('State Name')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -57,7 +62,7 @@ class StateResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-            ])
+            ])->defaultSort('country.name', 'desc')
             ->filters([
                 //
             ])
@@ -69,6 +74,18 @@ class StateResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('State Information')
+                ->schema([
+                    TextEntry::make('country.name')->label('Country Name'),
+                    TextEntry::make('name')->label('State Name'),
+                ])->columns(2),
             ]);
     }
 
@@ -84,7 +101,7 @@ class StateResource extends Resource
         return [
             'index' => Pages\ListStates::route('/'),
             'create' => Pages\CreateState::route('/create'),
-            'view' => Pages\ViewState::route('/{record}'),
+            // 'view' => Pages\ViewState::route('/{record}'),
             'edit' => Pages\EditState::route('/{record}/edit'),
         ];
     }
